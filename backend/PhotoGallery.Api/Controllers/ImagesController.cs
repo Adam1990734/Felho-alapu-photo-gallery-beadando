@@ -1,15 +1,16 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Mapster;
+using MapsterMapper;
+using Microsoft.AspNetCore.Mvc;
 using PhotoGallery.Api.Data;
 using PhotoGallery.Api.Database;
+using PhotoGallery.Api.Dtos;
 using PhotoGallery.Api.Entities;
 using PhotoGallery.Api.Models;
-using Mapster;
-using MapsterMapper;
 
 namespace PhotoGallery.Api.Controllers;
 
 [ApiController]
-[Route("api/[controller]")]
+[Route("api/images")]
 public class ImagesController : ControllerBase
 {
     private readonly AppDbContext _db;
@@ -20,7 +21,7 @@ public class ImagesController : ControllerBase
     }
 
     [HttpGet]
-    public IActionResult GetAll()
+    public async Task<IActionResult> GetAll()
     {
         return Ok(
             _db.Images
@@ -29,8 +30,10 @@ public class ImagesController : ControllerBase
                 .ToList());
     }
 
+    //Ez csak mock-ra kellett:
+    /*
     [HttpPost]
-    public IActionResult Create(ImageItemRequest image)
+    public async Task<IActionResult> Create(ImageItemRequest image)
     {
         var newImage = image.Adapt<ImageEntity>();
         newImage.Id = Guid.NewGuid();
@@ -46,9 +49,10 @@ public class ImagesController : ControllerBase
             newImage
         );
     }
+    */
 
     [HttpDelete("{id}")]
-    public IActionResult Delete(Guid id)
+    public async Task<IActionResult> Delete(Guid id)
     {
         var image = _db.Images.FirstOrDefault(x => x.Id == id);
 
@@ -60,5 +64,53 @@ public class ImagesController : ControllerBase
         _db.SaveChanges();
 
         return NoContent();
+    }
+
+    [HttpPost("upload")]
+    public async Task<IActionResult> Upload(ImageUploadDto request)
+    {
+        if (request.File is null ||
+            request.File.Length == 0)
+        {
+            return BadRequest("No file uploaded");
+        }
+
+        var uploadsFolder = Path.Combine(
+            Directory.GetCurrentDirectory(),
+            "uploads");
+
+        if (!Directory.Exists(uploadsFolder))
+        {
+            return StatusCode(500);
+        }
+
+        var fileName = $"{Guid.NewGuid()}_{request.File.FileName}";
+
+        var filePath = Path.Combine(
+            uploadsFolder,
+            fileName
+        );
+
+        using var stream = new FileStream(
+            filePath,
+            FileMode.Create
+        );
+
+        await request.File.CopyToAsync(stream);
+
+        var image = new ImageEntity
+        {
+            Id = Guid.NewGuid(),
+            Title = request.Title,
+            Description = request.Description,
+            FileName = fileName,
+            CreatedAt = DateTime.UtcNow
+        };
+
+        _db.Images.Add(image);
+
+        await _db.SaveChangesAsync();
+
+        return Ok(image);
     }
 }

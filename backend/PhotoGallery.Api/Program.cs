@@ -1,5 +1,6 @@
-using PhotoGallery.Api.Database;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.FileProviders;
+using PhotoGallery.Api.Database;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -31,6 +32,28 @@ builder.Services.AddSwaggerGen();
 var app = builder.Build();
 
 app.UseCors("ReactPolicy");
+
+var uploadsPath = Path.Combine(
+    Directory.GetCurrentDirectory(),
+    "uploads"
+);
+
+if (!Directory.Exists(uploadsPath))
+{
+    Directory.CreateDirectory(uploadsPath);
+}
+
+app.UseStaticFiles();
+
+app.UseStaticFiles(
+    new StaticFileOptions
+    {
+        FileProvider =
+            new PhysicalFileProvider(uploadsPath),
+
+        RequestPath = "/uploads"
+    }
+);
 
 app.UseSwagger();
 app.UseSwaggerUI();
