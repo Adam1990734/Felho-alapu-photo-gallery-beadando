@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
-import { createImage, getImages } from "./api";
+import { useEffect, useRef, useState } from "react";
+import { uploadImage, getImages, API_PORT } from "./api";
 import type { ImageItem } from "./types";
 
 function App() {
@@ -8,7 +8,8 @@ function App() {
 
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
-  const [fileName, setFileName] = useState("");
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [file, setFile] = useState<File | null>(null);
 
   const loadImages = async () => {
     const data = await getImages();
@@ -20,16 +21,23 @@ function App() {
   }, []);
 
   const handleSubmit = async () => {
+    if (!file)
+    {
+        alert("Select a file");
+        return;
+    }
 
-    await createImage(
-      title,
-      description,
-      fileName
+    await uploadImage(
+        title,
+        description,
+        file
     );
 
     setTitle("");
     setDescription("");
-    setFileName("");
+    setFile(null);
+    if (fileInputRef.current)
+      fileInputRef.current.value = "";
 
     await loadImages();
   };
@@ -61,9 +69,13 @@ function App() {
       <br />
 
       <input
-        placeholder="File Name"
-        value={fileName}
-        onChange={(e) => setFileName(e.target.value)}
+        ref={fileInputRef}
+        type="file"
+        onChange={(e) =>
+          setFile(
+            e.target.files?.[0] ?? null
+          )
+        }
       />
 
       <br />
@@ -83,7 +95,11 @@ function App() {
 
           <p>{image.description}</p>
 
-          <small>{image.fileName}</small>
+          <img
+            src={`https://localhost:${API_PORT}/uploads/${image.fileName}`}
+            alt={image.title}
+            width={300}
+          />
 
           <hr />
         </div>

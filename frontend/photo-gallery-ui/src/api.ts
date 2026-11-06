@@ -1,6 +1,8 @@
 import type { ImageItem } from "./types";
 
-const API_URL = "https://localhost:7214/api/images";
+export const API_PORT = 7214;
+
+const API_URL = `https://localhost:${API_PORT}/api/images`;
 
 export async function getImages(): Promise<ImageItem[]> {
     const response = await fetch(API_URL);
@@ -34,4 +36,29 @@ export async function createImage(
     }
 
     return response.json();
+}
+
+export async function uploadImage(
+  title: string,
+  description: string,
+  file: File
+) {
+  const formData = new FormData();
+
+  formData.append("title", title);
+  formData.append("description", description);
+  formData.append("file", file);
+
+  const response = await fetch(
+    `https://localhost:${API_PORT}/api/images/upload`,
+    {
+      method: "POST",
+      body: formData
+    });
+
+  if (!response.ok) {
+    throw new Error("Upload failed");
+  }
+
+  return response.json();
 }
