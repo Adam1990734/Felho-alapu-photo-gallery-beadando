@@ -1,11 +1,12 @@
-﻿using PhotoGallery.Api.Models;
+﻿using PhotoGallery.Api.Entities;
+using PhotoGallery.Api.Models;
 
 namespace PhotoGallery.Api.Data;
 
 public static class FakeImageRepository
 {
     //jelenleg ez csak mock:
-    public static List<ImageItem> Images =
+    public static List<ImageEntity> Images =
     [
         new()
         {

@@ -1,6 +1,10 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using PhotoGallery.Api.Data;
+using PhotoGallery.Api.Database;
+using PhotoGallery.Api.Entities;
 using PhotoGallery.Api.Models;
+using Mapster;
+using MapsterMapper;
 
 namespace PhotoGallery.Api.Controllers;
 
@@ -8,36 +12,52 @@ namespace PhotoGallery.Api.Controllers;
 [Route("api/[controller]")]
 public class ImagesController : ControllerBase
 {
+    private readonly AppDbContext _db;
+
+    public ImagesController(AppDbContext db)
+    {
+        _db = db;
+    }
+
     [HttpGet]
     public IActionResult GetAll()
     {
-        return Ok(FakeImageRepository.Images);
+        return Ok(
+            _db.Images
+                .ProjectToType<ImageItemResponse>()
+                .OrderByDescending(x => x.CreatedAt)
+                .ToList());
     }
 
     [HttpPost]
-    public IActionResult Create(ImageItem image)
+    public IActionResult Create(ImageItemRequest image)
     {
-        image.Id = Guid.NewGuid();
-        image.CreatedAt = DateTime.UtcNow;
+        var newImage = image.Adapt<ImageEntity>();
+        newImage.Id = Guid.NewGuid();
+        newImage.CreatedAt = DateTime.UtcNow;
 
-        FakeImageRepository.Images.Add(image);
+        _db.Images.Add(newImage);
+
+        _db.SaveChanges();
 
         return CreatedAtAction(
             nameof(GetAll),
-            new { id = image.Id },
-            image);
+            new { id = newImage.Id },
+            newImage
+        );
     }
 
     [HttpDelete("{id}")]
     public IActionResult Delete(Guid id)
     {
-        var image = FakeImageRepository.Images
-            .FirstOrDefault(x => x.Id == id);
+        var image = _db.Images.FirstOrDefault(x => x.Id == id);
 
         if (image is null)
             return NotFound();
 
-        FakeImageRepository.Images.Remove(image);
+        _db.Images.Remove(image);
+
+        _db.SaveChanges();
 
         return NoContent();
     }
