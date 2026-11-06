@@ -6,6 +6,7 @@ using PhotoGallery.Api.Database;
 using PhotoGallery.Api.Dtos;
 using PhotoGallery.Api.Entities;
 using PhotoGallery.Api.Models;
+using PhotoGallery.Api.Services;
 
 namespace PhotoGallery.Api.Controllers;
 
@@ -14,10 +15,14 @@ namespace PhotoGallery.Api.Controllers;
 public class ImagesController : ControllerBase
 {
     private readonly AppDbContext _db;
+    private readonly IS3StorageService _s3StorageService;
+    private readonly IConfiguration _configuration;
 
-    public ImagesController(AppDbContext db)
+    public ImagesController(AppDbContext db, IS3StorageService iS3StorageService, IConfiguration configuration)
     {
         _db = db;
+        _s3StorageService = iS3StorageService;
+        _configuration = configuration;
     }
 
     [HttpGet]
@@ -67,7 +72,8 @@ public class ImagesController : ControllerBase
     }
 
     [HttpPost("upload")]
-    public async Task<IActionResult> Upload(ImageUploadDto request)
+    public async Task<IActionResult> Upload(
+    [FromForm] ImageUploadDto request)
     {
         if (request.File is null ||
             request.File.Length == 0)
@@ -75,35 +81,21 @@ public class ImagesController : ControllerBase
             return BadRequest("No file uploaded");
         }
 
-        var uploadsFolder = Path.Combine(
-            Directory.GetCurrentDirectory(),
-            "uploads");
+        var key = await _s3StorageService
+            .UploadAsync(request.File);
 
-        if (!Directory.Exists(uploadsFolder))
-        {
-            return StatusCode(500);
-        }
+        var bucketName = _configuration["AWS:BucketName"];
 
-        var fileName = $"{Guid.NewGuid()}_{request.File.FileName}";
-
-        var filePath = Path.Combine(
-            uploadsFolder,
-            fileName
-        );
-
-        using var stream = new FileStream(
-            filePath,
-            FileMode.Create
-        );
-
-        await request.File.CopyToAsync(stream);
+        var imageUrl =
+            $"https://{bucketName}.s3.eu-central-1.amazonaws.com/{key}";
 
         var image = new ImageEntity
         {
             Id = Guid.NewGuid(),
             Title = request.Title,
             Description = request.Description,
-            FileName = fileName,
+            FileName = key,
+            ImageUrl = imageUrl,
             CreatedAt = DateTime.UtcNow
         };
 

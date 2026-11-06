@@ -10,5 +10,7 @@ public class ImageEntity
 
     public string FileName { get; set; } = string.Empty;
 
+    public string ImageUrl { get; set; } = string.Empty;
+
     public DateTime CreatedAt { get; set; }
 }

@@ -1,6 +1,8 @@
+using Amazon.S3;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.FileProviders;
 using PhotoGallery.Api.Database;
+using PhotoGallery.Api.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -16,10 +18,17 @@ builder.Services.AddCors(options =>
         });
 });
 
+builder.Services.AddAWSService<IAmazonS3>();
+builder.Services.AddScoped<
+    IS3StorageService,
+    S3StorageService>();
+
 //Contextusok:
 var connectionString =
     Environment.GetEnvironmentVariable("DATABASE_CONNECTION")
     ?? builder.Configuration.GetConnectionString("DefaultConnection");
+
+Console.WriteLine($"Currently using: {connectionString}");
 
 builder.Services.AddDbContext<AppDbContext>(options =>
 {
