@@ -17,11 +17,15 @@ builder.Services.AddCors(options =>
 });
 
 //Contextusok:
+var connectionString =
+    Environment.GetEnvironmentVariable("DATABASE_CONNECTION")
+    ?? builder.Configuration.GetConnectionString("DefaultConnection");
+
 builder.Services.AddDbContext<AppDbContext>(options =>
 {
-    options.UseNpgsql(
-        builder.Configuration.GetConnectionString("DefaultConnection"));
+    options.UseNpgsql(connectionString);
 });
+
 
 //Végpont regisztrációk:
 builder.Services.AddControllers();
@@ -30,6 +34,14 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
+
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider
+        .GetRequiredService<AppDbContext>();
+
+    db.Database.Migrate();
+}
 
 app.UseCors("ReactPolicy");
 

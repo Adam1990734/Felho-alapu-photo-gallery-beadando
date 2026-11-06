@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { uploadImage, getImages, API_PORT } from "./api";
+import { uploadImage, getImages, API_URL } from "./api";
 import type { ImageItem } from "./types";
 
 function App() {
@@ -94,7 +94,7 @@ function App() {
             key={image.id}
           >
             <img
-              src={`https://localhost:${API_PORT}/uploads/${image.fileName}`}
+              src={`${API_URL}/uploads/${image.fileName}`}
               alt={image.title}
             />
 
