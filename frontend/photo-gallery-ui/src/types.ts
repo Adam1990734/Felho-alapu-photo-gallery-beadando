@@ -4,4 +4,5 @@ export interface ImageItem {
   description: string;
   fileName: string;
   createdAt: string;
+  imageUrl: string;
 }

@@ -2,7 +2,7 @@ import type { ImageItem } from "./types";
 
 export const API_PORT = 8080;
 
-export const API_URL = `http://localhost:${API_PORT}`;
+export const API_URL = "";
 
 export async function getImages(): Promise<ImageItem[]> {
     const response = await fetch(`${API_URL}/api/images`);
