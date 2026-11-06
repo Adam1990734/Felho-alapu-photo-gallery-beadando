@@ -43,68 +43,72 @@ function App() {
   };
 
   return (
-    <>
+    <div className="container">
       <h1>Photo Gallery</h1>
 
-      <hr />
+      <div className="upload-card">
 
-      <h2>New Image</h2>
+        <h2>New Image</h2>
 
-      <input
-        placeholder="Title"
-        value={title}
-        onChange={(e) => setTitle(e.target.value)}
-      />
+        <input
+          placeholder="Title"
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+        />
 
-      <br />
-      <br />
+        <input
+          placeholder="Description"
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+        />
 
-      <input
-        placeholder="Description"
-        value={description}
-        onChange={(e) => setDescription(e.target.value)}
-      />
+        <input
+          ref={fileInputRef}
+          type="file"
+          onChange={(e) =>
+            setFile(
+              e.target.files?.[0] ?? null
+            )
+          }
+        />
 
-      <br />
-      <br />
+        <button
+          onClick={handleSubmit}
+          disabled={!file}
+        >
+          Upload
+        </button>
 
-      <input
-        ref={fileInputRef}
-        type="file"
-        onChange={(e) =>
-          setFile(
-            e.target.files?.[0] ?? null
-          )
-        }
-      />
+      </div>
 
-      <br />
-      <br />
+      <h2 className="gallery-title">
+        Images
+      </h2>
 
-      <button onClick={handleSubmit}>
-        Save
-      </button>
+      <div className="gallery">
 
-      <hr />
+        {images.map(image => (
 
-      <h2>Images</h2>
+          <div
+            className="image-card"
+            key={image.id}
+          >
+            <img
+              src={`https://localhost:${API_PORT}/uploads/${image.fileName}`}
+              alt={image.title}
+            />
 
-      {images.map(image => (
-        <div key={image.id}>
-          <h3>{image.title}</h3>
+            <div className="card-content">
+              <h3>{image.title}</h3>
 
-          <p>{image.description}</p>
+              <p>{image.description}</p>
+            </div>
+          </div>
 
-          <img
-            src={`https://localhost:${API_PORT}/uploads/${image.fileName}`}
-            alt={image.title}
-            width={300}
-          />
+        ))}
 
-          <hr />
-        </div>
-      ))}
-    </>
+      </div>
+    </div>
   );
 }
 
