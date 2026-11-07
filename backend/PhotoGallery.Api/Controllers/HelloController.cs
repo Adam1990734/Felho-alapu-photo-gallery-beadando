@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using PhotoGallery.Api.Contracts;
 
 namespace PhotoGallery.Api.Controllers
 {
@@ -10,7 +11,10 @@ namespace PhotoGallery.Api.Controllers
         [HttpGet]
         public ActionResult<string> index()
         {
-            return Ok("Hello Word!");
+            return Ok(new SayHelloResponse()
+            {
+                Message = "Hello World!"
+            });
         }
     }
 }
