@@ -1,0 +1,16 @@
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+
+namespace PhotoGallery.Api.Controllers
+{
+    [Route("api/sayhello")]
+    [ApiController]
+    public class HelloController : ControllerBase
+    {
+        [HttpGet]
+        public ActionResult<string> index()
+        {
+            return Ok("Hello Word!");
+        }
+    }
+}
