@@ -87,7 +87,7 @@ public class ImagesController : ControllerBase
         var bucketName = _configuration["AWS:BucketName"];
 
         var imageUrl =
-            $"https://{bucketName}.s3.eu-central-1.amazonaws.com/{key}";
+            $"https://{bucketName}.s3.eu-west-1.amazonaws.com/{key}";
 
         var image = new ImageEntity
         {
