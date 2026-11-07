@@ -40,4 +40,19 @@ public class S3StorageService : IS3StorageService
 
         return key;
     }
+
+    public async Task DeleteAsync(string key)
+    {
+        var bucketName =
+            _configuration["AWS:BucketName"];
+
+        var request =
+            new DeleteObjectRequest
+            {
+                BucketName = bucketName,
+                Key = key
+            };
+
+        await _s3.DeleteObjectAsync(request);
+    }
 }

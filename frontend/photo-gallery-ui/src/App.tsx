@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { uploadImage, getImages } from "./api";
+import { uploadImage, getImages, deleteImage } from "./api";
 import type { ImageItem } from "./types";
 
 function App() {
@@ -14,6 +14,23 @@ function App() {
   const loadImages = async () => {
     const data = await getImages();
     setImages(data);
+  };
+
+  const handleDelete = async (
+    id: string
+  ) => {
+
+    if (
+      !window.confirm(
+        "Biztosan törölni szeretnéd?"
+      )
+    ) {
+      return;
+    }
+
+    await deleteImage(id);
+
+    await loadImages();
   };
 
   useEffect(() => {
@@ -88,7 +105,6 @@ function App() {
       <div className="gallery">
 
         {images.map(image => (
-
           <div
             className="image-card"
             key={image.id}
@@ -99,12 +115,21 @@ function App() {
             />
 
             <div className="card-content">
+
               <h3>{image.title}</h3>
 
               <p>{image.description}</p>
+
+              <button
+                className="delete-btn"
+                onClick={() =>
+                  handleDelete(image.id)
+                }
+              >
+                Törlés
+              </button>
             </div>
           </div>
-
         ))}
 
       </div>

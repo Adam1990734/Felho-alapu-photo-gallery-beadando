@@ -64,6 +64,8 @@ public class ImagesController : ControllerBase
         if (image is null)
             return NotFound();
 
+        await _s3StorageService.DeleteAsync(image.FileName);
+
         _db.Images.Remove(image);
 
         _db.SaveChanges();

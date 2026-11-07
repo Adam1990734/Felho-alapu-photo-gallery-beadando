@@ -62,3 +62,17 @@ export async function uploadImage(
 
   return response.json();
 }
+
+export async function deleteImage(
+  id: string
+) {
+  const response = await fetch(
+    `${API_URL}/${id}`,
+    {
+      method: "DELETE"
+    });
+
+  if (!response.ok) {
+    throw new Error("Failed to delete image");
+  }
+}
