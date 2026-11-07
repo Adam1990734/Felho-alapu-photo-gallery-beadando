@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { uploadImage, getImages, deleteImage } from "./api";
 import type { ImageItem } from "./types";
+import Hello from "./hello";
 
 function App() {
 
@@ -132,6 +133,9 @@ function App() {
           </div>
         ))}
 
+      </div>
+      <div>
+        <Hello/>
       </div>
     </div>
   );
