@@ -67,7 +67,7 @@ export async function deleteImage(
   id: string
 ) {
   const response = await fetch(
-    `${API_URL}/${id}`,
+    `${API_URL}/api/images/${id}`,
     {
       method: "DELETE"
     });
